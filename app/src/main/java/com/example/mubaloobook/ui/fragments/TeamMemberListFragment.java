@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.mubaloobook.R;
+import com.example.mubaloobook.models.MubalooTeam;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
 
@@ -26,6 +29,10 @@ public class TeamMemberListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_team_member_list, container, false);
         ButterKnife.inject(this, rootView);
         return rootView;
+    }
+
+    public void setDisplayedTeams(List<MubalooTeam> teamsList) {
+        // TODO update UI
     }
 
 }

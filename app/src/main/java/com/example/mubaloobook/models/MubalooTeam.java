@@ -9,7 +9,7 @@ import java.util.List;
 public class MubalooTeam {
 
     private String teamName;
-    private List<MubalooTeam> members;
+    private List<MubalooTeamMember> members;
 
     public String getTeamName() {
         return teamName;
@@ -19,11 +19,11 @@ public class MubalooTeam {
         this.teamName = teamName;
     }
 
-    public List<MubalooTeam> getMembers() {
+    public List<MubalooTeamMember> getMembers() {
         return members;
     }
 
-    public void setMembers(List<MubalooTeam> members) {
+    public void setMembers(List<MubalooTeamMember> members) {
         this.members = members;
     }
 

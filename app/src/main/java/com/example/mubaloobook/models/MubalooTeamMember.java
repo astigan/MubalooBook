@@ -1,5 +1,7 @@
 package com.example.mubaloobook.models;
 
+import com.example.mubaloobook.network.MubalooApiResponse;
+
 /**
  * Model representing an individual employed by Mubaloo, holding information such as their name,
  * job description, etc
@@ -11,7 +13,23 @@ public class MubalooTeamMember {
     private String lastName;
     private String role;
     private String profileImageURL;
-    private boolean teamLead;
+    private Boolean teamLead;
+
+    public MubalooTeamMember() {
+        // empty constructor required for GSON serialisation
+    }
+
+    /**
+     * Construct a MubalooTeamMember from an API response (required for CEO)
+     * @param apiResponse response from GET developerTestResources/test.json
+     */
+    public MubalooTeamMember(MubalooApiResponse apiResponse) {
+//        this.id = apiResponse.getId();
+//        this.firstName = apiResponse.getFirstName();
+//        this.lastName = apiResponse.getLastName();
+//        this.role = apiResponse.getRole();
+//        this.profileImageURL = apiResponse.getProfileImageURL();
+    }
 
     public String getId() {
         return id;
@@ -53,7 +71,7 @@ public class MubalooTeamMember {
         this.profileImageURL = profileImageURL;
     }
 
-    public boolean isTeamLead() {
+    public Boolean isTeamLead() {
         return teamLead;
     }
 

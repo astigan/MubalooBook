@@ -28,4 +28,8 @@ public class TeamMemberDetailFragment extends Fragment {
         return rootView;
     }
 
+    public void setDisplayedTeamMember() {
+        // TODO update UI
+    }
+
 }
