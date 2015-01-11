@@ -105,7 +105,11 @@ public class MainActivity extends ActionBarActivity implements
 
                 for (int i=0; i<jsonElements.size(); i++) {
 
-                    if (i == 0) { // FIXME brittle
+                    // if Json object has attr teamName, assume it is of type MubalooTeam
+                    JsonElement currentElement = jsonElements.get(i);
+                    boolean isTeam = currentElement.getAsJsonObject().has("teamName");
+
+                    if (isTeam) {
                         MubalooTeam corporateTeam = new MubalooTeam();
                         corporateTeam.setTeamName("Corporate");
 
