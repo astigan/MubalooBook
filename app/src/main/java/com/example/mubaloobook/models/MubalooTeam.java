@@ -19,8 +19,6 @@ public class MubalooTeam {
     @DatabaseField
     private String teamName;
 
-    // populated via GSON, persisted via foreigncollection
-    @DatabaseField
     private List<MubalooTeamMember> members;
 
     public MubalooTeam() {

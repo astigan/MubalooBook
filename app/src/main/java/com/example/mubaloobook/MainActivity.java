@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.mubaloobook.db.DbHelper;
 import com.example.mubaloobook.log.Logger;
 import com.example.mubaloobook.models.MubalooTeam;
 import com.example.mubaloobook.models.MubalooTeamMember;
@@ -20,7 +21,9 @@ import com.example.mubaloobook.ui.fragments.TeamMemberDetailFragment;
 import com.example.mubaloobook.ui.fragments.TeamMemberListFragment;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.j256.ormlite.dao.Dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,14 +96,19 @@ public class MainActivity extends ActionBarActivity implements
         return (network != null && network.isConnectedOrConnecting());
     }
 
-    // FIXME first object in array is not serialised because it is a different type
     private void requestTeamInfo() {
 
         RestClient.get().getMubalooTeam(new Callback<List<JsonElement>>() {
             @Override
             public void success(List<JsonElement> jsonElements, Response response) {
 
-                List<MubalooTeam> teamList = new ArrayList<MubalooTeam>();
+                MubalooTeam corporateTeam = new MubalooTeam();
+                corporateTeam.setTeamName("Corporate");
+
+                List<MubalooTeamMember> corporateList = new ArrayList<>();
+                corporateTeam.setMembers(corporateList);
+
+                teamList = new ArrayList<>();
                 Gson gson = new Gson();
 
                 for (int i=0; i<jsonElements.size(); i++) {
@@ -110,28 +118,18 @@ public class MainActivity extends ActionBarActivity implements
                     boolean isTeam = currentElement.getAsJsonObject().has("teamName");
 
                     if (isTeam) {
-                        MubalooTeam corporateTeam = new MubalooTeam();
-                        corporateTeam.setTeamName("Corporate");
-
-                        MubalooTeamMember ceo = gson.fromJson(jsonElements.get(i), MubalooTeamMember.class);
-                        List<MubalooTeamMember> corporateList = new ArrayList<>();
-
-                        corporateList.add(ceo);
-                        corporateTeam.setMembers(corporateList);
-
-                        teamList.add(corporateTeam);
-                    }
-                    else {
                         MubalooTeam team = gson.fromJson(jsonElements.get(i), MubalooTeam.class);
                         teamList.add(team);
                     }
+                    else {
+                        MubalooTeamMember ceo = gson.fromJson(jsonElements.get(i), MubalooTeamMember.class);
+                        corporateList.add(ceo);
+                    }
                 }
 
+                teamList.add(corporateTeam);
                 teamMemberListFragment.setDisplayedTeams(teamList);
 
-
-//                Collection collection = teamList.get(1).getMembers();
-                int i = 0;
                 Log.i(Logger.TAG, "Successful request for mubaloo team info");
                 // TODO store in DB
             }
@@ -176,19 +174,20 @@ public class MainActivity extends ActionBarActivity implements
         currentTeamMember = teamMember;
 
 
-//        DbHelper dbHelper = new DbHelper(this);
-//        try {
-//            Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
-//            MubalooTeam team = teamList.get(1);
-//            daoTeam.createOrUpdate(team);
-//
-//            List<MubalooTeam> teamData = daoTeam.queryForAll();
-//            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
-//            int i = 0;
-//
-//        } catch (SQLException e) {
-//            Log.e(Logger.TAG, "DAO exception", e);
-//        }
+
+        DbHelper dbHelper = new DbHelper(this);
+        try {
+            Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
+            MubalooTeam team = teamList.get(1);
+            daoTeam.createOrUpdate(team);
+
+            List<MubalooTeam> teamData = daoTeam.queryForAll();
+            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
+            int i = 0;
+
+        } catch (SQLException e) {
+            Log.e(Logger.TAG, "DAO exception", e);
+        }
 
 
 

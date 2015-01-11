@@ -1,6 +1,5 @@
 package com.example.mubaloobook.models;
 
-import com.example.mubaloobook.network.MubalooApiResponse;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -11,8 +10,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "mubaloo_team_member")
 public class MubalooTeamMember {
-
-    public static final String FOREIGN_TABLE_NAME = "mubaloo_team";
 
     @DatabaseField(generatedId = true)
     private int genId;
@@ -37,18 +34,6 @@ public class MubalooTeamMember {
 
     public MubalooTeamMember() {
         // empty constructor required for GSON serialisation & ORMLite
-    }
-
-    /**
-     * Construct a MubalooTeamMember from an API response (required for CEO)
-     * @param apiResponse response from GET developerTestResources/test.json
-     */
-    public MubalooTeamMember(MubalooApiResponse apiResponse) {
-//        this.id = apiResponse.getId();
-//        this.firstName = apiResponse.getFirstName();
-//        this.lastName = apiResponse.getLastName();
-//        this.role = apiResponse.getRole();
-//        this.profileImageURL = apiResponse.getProfileImageURL();
     }
 
     public String getId() {

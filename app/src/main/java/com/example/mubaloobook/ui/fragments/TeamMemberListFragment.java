@@ -91,7 +91,6 @@ public class TeamMemberListFragment extends Fragment {
                 }
             });
         }
-
     }
 
     private class TeamListAdapter extends BaseExpandableListAdapter {
