@@ -1,22 +1,42 @@
 package com.example.mubaloobook.models;
 
 import com.example.mubaloobook.network.MubalooApiResponse;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Model representing an individual employed by Mubaloo, holding information such as their name,
  * job description, etc
  */
+
+@DatabaseTable(tableName = "mubaloo_team_member")
 public class MubalooTeamMember {
 
+    public static final String FOREIGN_TABLE_NAME = "mubaloo_team";
+
+    @DatabaseField(generatedId = true)
+    private int genId;
+
+    @DatabaseField
     private String id;
+
+    @DatabaseField
     private String firstName;
+
+    @DatabaseField
     private String lastName;
+
+    @DatabaseField
     private String role;
+
+    @DatabaseField
     private String profileImageURL;
+
+    @DatabaseField
     private Boolean teamLead;
 
     public MubalooTeamMember() {
-        // empty constructor required for GSON serialisation
+        // empty constructor required for GSON serialisation & ORMLite
     }
 
     /**
@@ -79,6 +99,10 @@ public class MubalooTeamMember {
         this.teamLead = teamLead;
     }
 
+    /**
+     * Construct a name from the firstName and lastName fields
+     * @return a name in the format 'John Smith'
+     */
     public String getFullName() {
         return getFirstName() + " " + getLastName();
     }

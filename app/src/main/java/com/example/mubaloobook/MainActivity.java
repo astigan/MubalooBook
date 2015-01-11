@@ -19,6 +19,7 @@ import com.example.mubaloobook.network.RestClient;
 import com.example.mubaloobook.ui.fragments.TeamMemberDetailFragment;
 import com.example.mubaloobook.ui.fragments.TeamMemberListFragment;
 
+import java.util.Collection;
 import java.util.List;
 
 import retrofit.Callback;
@@ -101,6 +102,8 @@ public class MainActivity extends ActionBarActivity implements
 
                 teamMemberListFragment.setDisplayedTeams(mubalooTeamResponses);
 
+                Collection collection = teamList.get(1).getMembers();
+
                 Log.i(Logger.TAG, "Successful request for mubaloo team info");
                 // TODO store in DB
             }
@@ -144,6 +147,23 @@ public class MainActivity extends ActionBarActivity implements
 
         currentTeamMember = teamMember;
 
+
+//        DbHelper dbHelper = new DbHelper(this);
+//        try {
+//            Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
+//            MubalooTeam team = teamList.get(1);
+//            daoTeam.createOrUpdate(team);
+//
+//            List<MubalooTeam> teamData = daoTeam.queryForAll();
+//            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
+//            int i = 0;
+//
+//        } catch (SQLException e) {
+//            Log.e(Logger.TAG, "DAO exception", e);
+//        }
+
+
+
         if (!isTablet()) {
             teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
             addFragmentToContainer(R.id.fragment_container, teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
@@ -165,4 +185,5 @@ public class MainActivity extends ActionBarActivity implements
     public void onListFragmentLoaded() {
         teamMemberListFragment.setDisplayedTeams(teamList);
     }
+
 }
