@@ -11,11 +11,15 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "mubaloo_team_member")
 public class MubalooTeamMember {
 
-    @DatabaseField(generatedId = true)
-    private int genId;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "mubaloo_team")
+    private MubalooTeam mubalooTeam;
 
-    @DatabaseField
-    private String id;
+    public void setMubalooTeam(MubalooTeam mubalooTeam) {
+        this.mubalooTeam = mubalooTeam;
+    }
+
+    @DatabaseField(id = true)
+    private int id;
 
     @DatabaseField
     private String firstName;
@@ -36,11 +40,11 @@ public class MubalooTeamMember {
         // empty constructor required for GSON serialisation & ORMLite
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

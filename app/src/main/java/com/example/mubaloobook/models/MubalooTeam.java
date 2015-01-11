@@ -1,8 +1,10 @@
 package com.example.mubaloobook.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,13 +15,13 @@ import java.util.List;
 @DatabaseTable(tableName = "mubaloo_team")
 public class MubalooTeam {
 
-    @DatabaseField(generatedId = true)
-    private int genId;
-
-    @DatabaseField
+    @DatabaseField(id = true)
     private String teamName;
 
     private List<MubalooTeamMember> members;
+
+    @ForeignCollectionField(eager = true)
+    private Collection<MubalooTeamMember> membersCollection;
 
     public MubalooTeam() {
         // empty constructor required for GSON serialisation & ORMLite
@@ -39,6 +41,11 @@ public class MubalooTeam {
 
     public void setMembers(List<MubalooTeamMember> members) {
         this.members = members;
+        this.membersCollection = members;
+    }
+
+    public Collection<MubalooTeamMember> getMembersCollection() {
+        return membersCollection;
     }
 
 }

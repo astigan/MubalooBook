@@ -173,17 +173,27 @@ public class MainActivity extends ActionBarActivity implements
 
         currentTeamMember = teamMember;
 
-
-
         DbHelper dbHelper = new DbHelper(this);
         try {
             Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
             MubalooTeam team = teamList.get(1);
+            team.setMembers(team.getMembers());
             daoTeam.createOrUpdate(team);
+
+
+            Dao<MubalooTeamMember, Integer> daoMember = dbHelper.getMubalooTeamMemberDao();
+
+            for (MubalooTeamMember member : team.getMembers()) {
+                member.setMubalooTeam(team);
+                daoMember.createOrUpdate(member);
+            }
+
+            List<MubalooTeamMember> allMembers = daoMember.queryForAll();
 
             List<MubalooTeam> teamData = daoTeam.queryForAll();
             List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
             int i = 0;
+
 
         } catch (SQLException e) {
             Log.e(Logger.TAG, "DAO exception", e);
