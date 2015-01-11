@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.mubaloobook.MainActivity;
 import com.example.mubaloobook.R;
 import com.example.mubaloobook.models.MubalooTeamMember;
 import com.squareup.picasso.Picasso;
@@ -24,11 +25,30 @@ public class TeamMemberDetailFragment extends Fragment {
     @InjectView(R.id.member_profile_name) TextView profileName;
     @InjectView(R.id.member_role_desc) TextView roleDescription;
 
+    public interface DetailFragmentListener {
+        public void onDetailFragmentLoaded();
+    }
+
+    private DetailFragmentListener listener;
+
     public static TeamMemberDetailFragment newInstance() {
         TeamMemberDetailFragment fragment = new TeamMemberDetailFragment();
         Bundle extras = new Bundle();
         fragment.setArguments(extras);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MainActivity activity = (MainActivity) getActivity();
+
+        if (activity != null && activity instanceof DetailFragmentListener) {
+            listener = (DetailFragmentListener) activity;
+        }
+        else {
+            throw new RuntimeException("Host Activity must implement ListFragmentListener!");
+        }
     }
 
     @Override
@@ -38,18 +58,25 @@ public class TeamMemberDetailFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        listener.onDetailFragmentLoaded();
+    }
+
     public void setDisplayedTeamMember(MubalooTeamMember teamMember) {
 
-        String fullName = teamMember.getFirstName() + " " + teamMember.getLastName();
-        String roleText = getString(R.string.role_wildcard, teamMember.getRole());
+        if (teamMember != null) {
+            String roleText = getString(R.string.role_wildcard, teamMember.getRole());
 
-        profileName.setText(fullName);
-        roleDescription.setText(roleText);
+            profileName.setText(teamMember.getFullName());
+            roleDescription.setText(roleText);
 
-        Context context = getActivity();
+            Context context = getActivity();
 
-        if (context != null) {
-            Picasso.with(context).load(teamMember.getProfileImageURL()).into(profilePic);
+            if (context != null) {
+                Picasso.with(context).load(teamMember.getProfileImageURL()).into(profilePic);
+            }
         }
     }
 

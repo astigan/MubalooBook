@@ -79,4 +79,8 @@ public class MubalooTeamMember {
         this.teamLead = teamLead;
     }
 
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
+    }
+
 }

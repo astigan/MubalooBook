@@ -1,22 +1,26 @@
 package com.example.mubaloobook.ui.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
 import com.example.mubaloobook.MainActivity;
 import com.example.mubaloobook.R;
 import com.example.mubaloobook.models.MubalooTeam;
 import com.example.mubaloobook.models.MubalooTeamMember;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class TeamMemberListFragment extends Fragment {
 
@@ -59,38 +63,63 @@ public class TeamMemberListFragment extends Fragment {
 
     public void setDisplayedTeams(List<MubalooTeam> teamsList) {
         // TODO update UI
+        final TeamListAdapter adapter = new TeamListAdapter(getActivity(), teamsList);
+
+        teamListView.setAdapter(adapter);
+        teamListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                if (listener != null) {
+                    MubalooTeamMember selectedMember = (MubalooTeamMember) adapter.getChild(groupPosition, childPosition);
+                    listener.onTeamMemberSelected(selectedMember);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     private class TeamListAdapter extends BaseExpandableListAdapter {
 
+        private LayoutInflater inflater;
+        private List<MubalooTeam> teamList;
+        private Context context;
+
+        public TeamListAdapter(Context context, List<MubalooTeam> teamList) {
+            this.teamList = teamList;
+            this.context = context;
+            inflater = LayoutInflater.from(context);
+        }
+
         @Override
         public int getGroupCount() {
-            return 0;
+            return this.teamList.size();
         }
 
         @Override
         public int getChildrenCount(int groupPosition) {
-            return 0;
+            return this.teamList.get(groupPosition).getMembers().size();
         }
 
         @Override
         public Object getGroup(int groupPosition) {
-            return null;
+            return this.teamList.get(groupPosition);
         }
 
         @Override
         public Object getChild(int groupPosition, int childPosition) {
-            return null;
+            return this.teamList.get(groupPosition).getMembers().get(childPosition);
         }
 
         @Override
         public long getGroupId(int groupPosition) {
-            return 0;
+            return groupPosition;
         }
 
         @Override
         public long getChildId(int groupPosition, int childPosition) {
-            return 0;
+            return childPosition; // FIXME not unique
         }
 
         @Override
@@ -100,17 +129,34 @@ public class TeamMemberListFragment extends Fragment {
 
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-            return null;
+
+            View groupView = inflater.inflate(R.layout.team_list_item, parent, false);
+            MubalooTeam currentTeam = (MubalooTeam) getGroup(groupPosition);
+
+            TextView teamName = (TextView) groupView.findViewById(R.id.team_name);
+            teamName.setText(currentTeam.getTeamName());
+
+            return groupView;
         }
 
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-            return null;
+
+            View childView = inflater.inflate(R.layout.member_list_item, parent, false);
+            MubalooTeamMember currentMember = (MubalooTeamMember) getChild(groupPosition, childPosition);
+
+            TextView memberName = (TextView) childView.findViewById(R.id.member_name_label);
+            CircleImageView memberProfilePic = (CircleImageView) childView.findViewById(R.id.item_profile_pic);
+
+            memberName.setText(currentMember.getFullName());
+            Picasso.with(context).load(currentMember.getProfileImageURL()).into(memberProfilePic);
+
+            return childView;
         }
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+            return true;
         }
     }
 
