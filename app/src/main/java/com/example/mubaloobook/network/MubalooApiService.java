@@ -1,6 +1,6 @@
 package com.example.mubaloobook.network;
 
-import com.example.mubaloobook.models.MubalooTeam;
+import com.google.gson.JsonElement;
 
 import java.util.List;
 
@@ -14,6 +14,6 @@ import retrofit.http.GET;
 public interface MubalooApiService {
 
     @GET("/developerTestResources/team.json")
-    public void getMubalooTeam(Callback<List<MubalooTeam>> callback);
+    public void getMubalooTeam(Callback<List<JsonElement>> callback);
 
 }

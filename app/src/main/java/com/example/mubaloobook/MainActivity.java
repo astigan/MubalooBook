@@ -18,8 +18,10 @@ import com.example.mubaloobook.models.MubalooTeamMember;
 import com.example.mubaloobook.network.RestClient;
 import com.example.mubaloobook.ui.fragments.TeamMemberDetailFragment;
 import com.example.mubaloobook.ui.fragments.TeamMemberListFragment;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -94,16 +96,38 @@ public class MainActivity extends ActionBarActivity implements
     // FIXME first object in array is not serialised because it is a different type
     private void requestTeamInfo() {
 
-        RestClient.get().getMubalooTeam(new Callback<List<MubalooTeam>>() {
+        RestClient.get().getMubalooTeam(new Callback<List<JsonElement>>() {
             @Override
-            public void success(List<MubalooTeam> mubalooTeamResponses, Response response) {
+            public void success(List<JsonElement> jsonElements, Response response) {
 
-                teamList = mubalooTeamResponses;
+                List<MubalooTeam> teamList = new ArrayList<MubalooTeam>();
+                Gson gson = new Gson();
 
-                teamMemberListFragment.setDisplayedTeams(mubalooTeamResponses);
+                for (int i=0; i<jsonElements.size(); i++) {
 
-                Collection collection = teamList.get(1).getMembers();
+                    if (i == 0) { // FIXME brittle
+                        MubalooTeam corporateTeam = new MubalooTeam();
+                        corporateTeam.setTeamName("Corporate");
 
+                        MubalooTeamMember ceo = gson.fromJson(jsonElements.get(i), MubalooTeamMember.class);
+                        List<MubalooTeamMember> corporateList = new ArrayList<>();
+
+                        corporateList.add(ceo);
+                        corporateTeam.setMembers(corporateList);
+
+                        teamList.add(corporateTeam);
+                    }
+                    else {
+                        MubalooTeam team = gson.fromJson(jsonElements.get(i), MubalooTeam.class);
+                        teamList.add(team);
+                    }
+                }
+
+                teamMemberListFragment.setDisplayedTeams(teamList);
+
+
+//                Collection collection = teamList.get(1).getMembers();
+                int i = 0;
                 Log.i(Logger.TAG, "Successful request for mubaloo team info");
                 // TODO store in DB
             }
