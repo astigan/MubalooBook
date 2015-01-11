@@ -2,6 +2,7 @@ package com.example.mubaloobook;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -35,6 +36,7 @@ public class MainActivity extends ActionBarActivity implements
     private TeamMemberDetailFragment teamMemberDetailFragment;
 
     private MubalooTeamMember currentTeamMember;
+    private List<MubalooTeam> teamList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +95,10 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void success(List<MubalooTeam> mubalooTeamResponses, Response response) {
 
+                teamList = mubalooTeamResponses;
+
                 teamMemberListFragment.setDisplayedTeams(mubalooTeamResponses);
 
-                List<MubalooTeam> teams = mubalooTeamResponses;
                 Log.i(Logger.TAG, "Successful request for mubaloo team info");
                 // TODO store in DB
             }
@@ -108,21 +111,14 @@ public class MainActivity extends ActionBarActivity implements
         });
     }
 
-    @Override
-    public void onTeamMemberSelected(MubalooTeamMember teamMember) {
-
-        currentTeamMember = teamMember;
-
-        if (!isTablet()) {
-            teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
-            addFragmentToContainer(teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
-        }
-        // TODO set selected team member when attached
-    }
-
     private void addFragmentToContainer(Fragment fragment, String tag) {
         FragmentManager fm = getFragmentManager();
-        fm.beginTransaction().add(R.id.fragment_container, fragment, tag).commit();
+        FragmentTransaction transaction =  fm.beginTransaction();
+
+        transaction.replace(R.id.fragment_container, fragment, tag);
+        transaction.addToBackStack(tag);
+        transaction.commit();
+
         fm.executePendingTransactions();
     }
 
@@ -139,10 +135,29 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
+    // *** Fragment callbacks ***
+
+    @Override
+    public void onTeamMemberSelected(MubalooTeamMember teamMember) {
+
+        currentTeamMember = teamMember;
+
+        if (!isTablet()) {
+            teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
+            addFragmentToContainer(teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+        }
+        // TODO set selected team member when attached
+    }
+
     @Override
     public void onDetailFragmentLoaded() {
         if (!isTablet()) {
             teamMemberDetailFragment.setDisplayedTeamMember(currentTeamMember);
         }
+    }
+
+    @Override
+    public void onListFragmentLoaded() {
+        teamMemberListFragment.setDisplayedTeams(teamList);
     }
 }

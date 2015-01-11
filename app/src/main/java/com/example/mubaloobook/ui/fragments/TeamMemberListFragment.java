@@ -28,6 +28,7 @@ public class TeamMemberListFragment extends Fragment {
 
     public interface ListFragmentListener {
         public void onTeamMemberSelected(MubalooTeamMember teamMember);
+        public void onListFragmentLoaded();
     }
 
     private ListFragmentListener listener;
@@ -61,23 +62,36 @@ public class TeamMemberListFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (listener != null) {
+            listener.onListFragmentLoaded();
+        }
+    }
+
     public void setDisplayedTeams(List<MubalooTeam> teamsList) {
-        // TODO update UI
-        final TeamListAdapter adapter = new TeamListAdapter(getActivity(), teamsList);
 
-        teamListView.setAdapter(adapter);
-        teamListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+        if (teamsList != null) {
+            // TODO update UI
+            final TeamListAdapter adapter = new TeamListAdapter(getActivity(), teamsList);
 
-                if (listener != null) {
-                    MubalooTeamMember selectedMember = (MubalooTeamMember) adapter.getChild(groupPosition, childPosition);
-                    listener.onTeamMemberSelected(selectedMember);
-                    return true;
+            teamListView.setAdapter(adapter);
+            teamListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                @Override
+                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                    if (listener != null) {
+                        MubalooTeamMember selectedMember = (MubalooTeamMember) adapter.getChild(groupPosition, childPosition);
+                        listener.onTeamMemberSelected(selectedMember);
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
+
     }
 
     private class TeamListAdapter extends BaseExpandableListAdapter {
