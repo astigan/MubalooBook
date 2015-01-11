@@ -11,7 +11,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 
 import com.example.mubaloobook.log.Logger;
 import com.example.mubaloobook.models.MubalooTeam;
@@ -22,15 +21,12 @@ import com.example.mubaloobook.ui.fragments.TeamMemberListFragment;
 
 import java.util.List;
 
-import butterknife.InjectView;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class MainActivity extends ActionBarActivity implements
         TeamMemberListFragment.ListFragmentListener, TeamMemberDetailFragment.DetailFragmentListener {
-
-    @InjectView(R.id.fragment_container) FrameLayout fragmentContainer;
 
     private TeamMemberListFragment teamMemberListFragment;
     private TeamMemberDetailFragment teamMemberDetailFragment;
@@ -43,9 +39,15 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!isTablet()) {
+        if (isTablet()) {
             teamMemberListFragment = TeamMemberListFragment.newInstance();
-            addFragmentToContainer(teamMemberListFragment, TeamMemberListFragment.TAG);
+            teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
+            addFragmentToContainer(R.id.list_fragment_container, teamMemberListFragment, TeamMemberListFragment.TAG);
+            addFragmentToContainer(R.id.detail_fragment_container, teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+        }
+        else {
+            teamMemberListFragment = TeamMemberListFragment.newInstance();
+            addFragmentToContainer(R.id.fragment_container, teamMemberListFragment, TeamMemberListFragment.TAG);
         }
 
         if (!isNetworkAvailable()) {
@@ -111,11 +113,11 @@ public class MainActivity extends ActionBarActivity implements
         });
     }
 
-    private void addFragmentToContainer(Fragment fragment, String tag) {
+    private void addFragmentToContainer(int containerId, Fragment fragment, String tag) {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction =  fm.beginTransaction();
 
-        transaction.replace(R.id.fragment_container, fragment, tag);
+        transaction.replace(containerId, fragment, tag);
         transaction.addToBackStack(tag);
         transaction.commit();
 
@@ -127,7 +129,7 @@ public class MainActivity extends ActionBarActivity implements
 
         FragmentManager fm = getFragmentManager();
 
-        if (fm.getBackStackEntryCount() > 1) {
+        if (!isTablet() && fm.getBackStackEntryCount() > 1) {
             fm.popBackStack();
         }
         else {
@@ -144,7 +146,10 @@ public class MainActivity extends ActionBarActivity implements
 
         if (!isTablet()) {
             teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
-            addFragmentToContainer(teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+            addFragmentToContainer(R.id.fragment_container, teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+        }
+        else {
+            teamMemberDetailFragment.setDisplayedTeamMember(teamMember);
         }
         // TODO set selected team member when attached
     }
