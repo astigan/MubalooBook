@@ -24,7 +24,7 @@
         android:layout_centerVertical="true"
         android:textColor="@color/dark_text"
         android:textSize="@dimen/secondary_text_size"
-        android:layout_toRightOf="@+id/item_profile_pic"/>
+        android:layout_toRightOf="@+id/item_profile_pic" />
 
     <com.beardedhen.androidbootstrap.FontAwesomeText
         android:id="@+id/fa_team_lead_icon"
