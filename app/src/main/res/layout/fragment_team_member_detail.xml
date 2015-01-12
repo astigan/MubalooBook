@@ -35,6 +35,12 @@
         android:id="@+id/member_role_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_view_padding"
+        android:layout_marginBottom="@dimen/default_view_padding"
+        android:layout_marginLeft="@dimen/min_view_padding"
+        android:layout_marginRight="@dimen/min_view_padding"
+
+        android:textSize="@dimen/primary_text_size"
         android:layout_below="@+id/profile_summary_container" />
 
 
