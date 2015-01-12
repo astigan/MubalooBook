@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.mubaloobook.db.DbHelper;
 import com.example.mubaloobook.log.Logger;
@@ -57,8 +58,7 @@ public class MainActivity extends ActionBarActivity implements
         }
 
         if (!isNetworkAvailable()) {
-            Log.i(Logger.TAG, "Not connected to a network");
-            // TODO display feedback in UI
+            Toast.makeText(this, getString(R.string.no_connection_message), Toast.LENGTH_LONG).show();
         }
 
         requestTeamInfo();
@@ -189,18 +189,15 @@ public class MainActivity extends ActionBarActivity implements
                 daoMember.createOrUpdate(member);
             }
 
-            List<MubalooTeamMember> allMembers = daoMember.queryForAll();
-
-            List<MubalooTeam> teamData = daoTeam.queryForAll();
-            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
-            int i = 0;
-
+//            List<MubalooTeamMember> allMembers = daoMember.queryForAll();
+//
+//            List<MubalooTeam> teamData = daoTeam.queryForAll();
+//            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
+//            int i = 0;
 
         } catch (SQLException e) {
             Log.e(Logger.TAG, "DAO exception", e);
         }
-
-
 
         if (!isTablet()) {
             teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();

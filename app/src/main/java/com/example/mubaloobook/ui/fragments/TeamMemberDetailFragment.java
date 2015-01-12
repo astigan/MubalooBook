@@ -44,7 +44,7 @@ public class TeamMemberDetailFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
 
         if (activity != null && activity instanceof DetailFragmentListener) {
-            listener = (DetailFragmentListener) activity;
+            listener = activity;
         }
         else {
             throw new RuntimeException("Host Activity must implement ListFragmentListener!");

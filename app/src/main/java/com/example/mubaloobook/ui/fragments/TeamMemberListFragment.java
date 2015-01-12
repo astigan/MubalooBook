@@ -49,7 +49,7 @@ public class TeamMemberListFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
 
         if (activity != null && activity instanceof ListFragmentListener) {
-            listener = (ListFragmentListener) activity;
+            listener = activity;
         }
         else {
             throw new RuntimeException("Host Activity must implement ListFragmentListener!");
@@ -75,7 +75,6 @@ public class TeamMemberListFragment extends Fragment {
     public void setDisplayedTeams(List<MubalooTeam> teamsList) {
 
         if (teamsList != null) {
-            // TODO update UI
             final TeamListAdapter adapter = new TeamListAdapter(getActivity(), teamsList);
 
             teamListView.setAdapter(adapter);
@@ -92,19 +91,18 @@ public class TeamMemberListFragment extends Fragment {
                 }
             });
 
+            // auto-expand all items in list
             for (int i=0; i<adapter.getGroupCount(); i++) {
                 teamListView.expandGroup(i);
-
             }
-
         }
     }
 
     private class TeamListAdapter extends BaseExpandableListAdapter {
 
-        private LayoutInflater inflater;
-        private List<MubalooTeam> teamList;
-        private Context context;
+        private final LayoutInflater inflater;
+        private final List<MubalooTeam> teamList;
+        private final Context context;
 
         public TeamListAdapter(Context context, List<MubalooTeam> teamList) {
             this.teamList = teamList;
