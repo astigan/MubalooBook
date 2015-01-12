@@ -10,6 +10,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.beardedhen.androidbootstrap.FontAwesomeText;
 import com.example.mubaloobook.MainActivity;
 import com.example.mubaloobook.R;
 import com.example.mubaloobook.models.MubalooTeam;
@@ -90,6 +91,12 @@ public class TeamMemberListFragment extends Fragment {
                     return false;
                 }
             });
+
+            for (int i=0; i<adapter.getGroupCount(); i++) {
+                teamListView.expandGroup(i);
+
+            }
+
         }
     }
 
@@ -163,6 +170,10 @@ public class TeamMemberListFragment extends Fragment {
 
             memberName.setText(currentMember.getFullName());
             Picasso.with(context).load(currentMember.getProfileImageURL()).into(memberProfilePic);
+
+            FontAwesomeText faTeamLeadIcon = (FontAwesomeText) childView.findViewById(R.id.fa_team_lead_icon);
+            String faCode = (currentMember.isTeamLead()) ? "fa-briefcase" : "fa-user";
+            faTeamLeadIcon.setIcon(faCode);
 
             return childView;
         }

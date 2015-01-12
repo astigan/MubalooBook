@@ -109,6 +109,8 @@ public class MainActivity extends ActionBarActivity implements
                 corporateTeam.setMembers(corporateList);
 
                 teamList = new ArrayList<>();
+                teamList.add(corporateTeam);
+
                 Gson gson = new Gson();
 
                 for (int i=0; i<jsonElements.size(); i++) {
@@ -127,7 +129,6 @@ public class MainActivity extends ActionBarActivity implements
                     }
                 }
 
-                teamList.add(corporateTeam);
                 teamMemberListFragment.setDisplayedTeams(teamList);
 
                 Log.i(Logger.TAG, "Successful request for mubaloo team info");

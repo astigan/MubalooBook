@@ -81,7 +81,7 @@ public class MubalooTeamMember {
     }
 
     public Boolean isTeamLead() {
-        return teamLead;
+        return (teamLead != null && teamLead);
     }
 
     public void setTeamLead(boolean teamLead) {

@@ -12,5 +12,6 @@
     <!-- View specific -->
     <dimen name="detail_profile_pic_size">64dp</dimen>
     <dimen name="list_profile_pic_size">32dp</dimen>
+    <dimen name="team_lead_icon_size">28sp</dimen>
 
 </resources>
