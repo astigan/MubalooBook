@@ -40,11 +40,13 @@ public class MainActivity extends ActionBarActivity implements
 
     private MubalooTeamMember currentTeamMember;
     private List<MubalooTeam> teamList;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.context = this;
 
         if (isTablet()) {
             teamMemberListFragment = TeamMemberListFragment.newInstance();
@@ -59,9 +61,11 @@ public class MainActivity extends ActionBarActivity implements
 
         if (!isNetworkAvailable()) {
             Toast.makeText(this, getString(R.string.no_connection_message), Toast.LENGTH_LONG).show();
+            updateUiOnDataChange();
         }
-
-        requestTeamInfo();
+        else {
+            requestTeamInfo();
+        }
     }
 
     @Override
@@ -113,9 +117,8 @@ public class MainActivity extends ActionBarActivity implements
 
                 Gson gson = new Gson();
 
+                // if Json object has attr teamName, assume it is of type MubalooTeam
                 for (int i=0; i<jsonElements.size(); i++) {
-
-                    // if Json object has attr teamName, assume it is of type MubalooTeam
                     JsonElement currentElement = jsonElements.get(i);
                     boolean isTeam = currentElement.getAsJsonObject().has("teamName");
 
@@ -128,19 +131,52 @@ public class MainActivity extends ActionBarActivity implements
                         corporateList.add(ceo);
                     }
                 }
-
+                updateDatabaseRecords(teamList);
                 teamMemberListFragment.setDisplayedTeams(teamList);
-
-                Log.i(Logger.TAG, "Successful request for mubaloo team info");
-                // TODO store in DB
+//                updateUiOnDataChange();
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Log.w(Logger.TAG, "Failed request for mubaloo team info ", error);
-                // TODO display UI feedback
+                Toast.makeText(context, "API request failed", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void updateDatabaseRecords(List<MubalooTeam> teamList) {
+        DbHelper dbHelper = new DbHelper(this);
+
+        try {
+            Dao<MubalooTeam, Integer> dao = dbHelper.getMubalooTeamDao();
+
+            for (MubalooTeam team : teamList) {
+                dao.createOrUpdate(team);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Caught SQL exception updating team members");
+        }
+    }
+
+    private List<MubalooTeam> getTeamListFromDb() {
+        DbHelper dbHelper = new DbHelper(this);
+        List<MubalooTeam> teamList;
+
+        try {
+            Dao<MubalooTeam, Integer> dao = dbHelper.getMubalooTeamDao();
+            teamList = dao.queryForAll();
+
+            for (MubalooTeam team : teamList) {
+                dao.createOrUpdate(team);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Caught SQL exception loading team members from DB");
+        }
+        return teamList;
+    }
+
+    private void updateUiOnDataChange() {
+        teamList = getTeamListFromDb();
+        teamMemberListFragment.setDisplayedTeams(teamList);
     }
 
     private void addFragmentToContainer(int containerId, Fragment fragment, String tag) {
@@ -156,7 +192,6 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onBackPressed() {
-
         FragmentManager fm = getFragmentManager();
 
         if (!isTablet() && fm.getBackStackEntryCount() > 1) {
@@ -181,19 +216,12 @@ public class MainActivity extends ActionBarActivity implements
             team.setMembers(team.getMembers());
             daoTeam.createOrUpdate(team);
 
-
             Dao<MubalooTeamMember, Integer> daoMember = dbHelper.getMubalooTeamMemberDao();
 
             for (MubalooTeamMember member : team.getMembers()) {
                 member.setMubalooTeam(team);
                 daoMember.createOrUpdate(member);
             }
-
-//            List<MubalooTeamMember> allMembers = daoMember.queryForAll();
-//
-//            List<MubalooTeam> teamData = daoTeam.queryForAll();
-//            List<MubalooTeamMember> teamMembersData = teamData.get(0).getMembers();
-//            int i = 0;
 
         } catch (SQLException e) {
             Log.e(Logger.TAG, "DAO exception", e);
@@ -218,6 +246,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onListFragmentLoaded() {
+        updateUiOnDataChange();
         teamMemberListFragment.setDisplayedTeams(teamList);
     }
 

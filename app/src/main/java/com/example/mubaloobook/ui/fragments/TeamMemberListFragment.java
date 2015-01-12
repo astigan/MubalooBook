@@ -74,7 +74,7 @@ public class TeamMemberListFragment extends Fragment {
 
     public void setDisplayedTeams(List<MubalooTeam> teamsList) {
 
-        if (teamsList != null) {
+        if (teamListView != null && teamsList != null) {
             final TeamListAdapter adapter = new TeamListAdapter(getActivity(), teamsList);
 
             teamListView.setAdapter(adapter);

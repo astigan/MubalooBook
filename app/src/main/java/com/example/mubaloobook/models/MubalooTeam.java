@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class MubalooTeam {
     }
 
     public List<MubalooTeamMember> getMembers() {
+        if (this.members == null) {
+            this.members = new ArrayList<>(this.membersCollection);
+        }
         return members;
     }
 
