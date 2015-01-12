@@ -1,6 +1,16 @@
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
+    <!-- Padding -->
+    <dimen name="min_view_padding">8dp</dimen>
+    <dimen name="default_view_padding">16dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Text sizes -->
     <dimen name="primary_text_size">24sp</dimen>
+    <dimen name="secondary_text_size">20sp</dimen>
+
+    <!-- View specific -->
+    <dimen name="detail_profile_pic_size">64dp</dimen>
+    <dimen name="list_profile_pic_size">32dp</dimen>
+
 </resources>

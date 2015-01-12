@@ -155,7 +155,7 @@ public class TeamMemberListFragment extends Fragment {
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 
-            View childView = inflater.inflate(R.layout.member_list_item, parent, false);
+            View childView = inflater.inflate(R.layout.team_member_list_item, parent, false);
             MubalooTeamMember currentMember = (MubalooTeamMember) getChild(groupPosition, childPosition);
 
             TextView memberName = (TextView) childView.findViewById(R.id.member_name_label);
