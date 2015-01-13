@@ -17,6 +17,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * Fragment that displays details about a Mubaloo team member
+ */
 public class TeamMemberDetailFragment extends Fragment {
 
     public static final String TAG = "TeamMemberDetailFragment";

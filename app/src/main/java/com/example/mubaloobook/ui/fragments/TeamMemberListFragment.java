@@ -23,6 +23,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * Fragment that displays an expandablelistview of the teams at Mubaloo and their members
+ */
 public class TeamMemberListFragment extends Fragment {
 
     public static final String TAG = "TeamMemberListFragment";

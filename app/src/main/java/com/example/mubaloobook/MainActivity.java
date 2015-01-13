@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -30,6 +31,10 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+/**
+ * Main activity controlling the detail/list fragments. Handles API requests, DB queries, etc, and
+ * passes relevant data onto the fragments
+ */
 public class MainActivity extends ActionBarActivity implements
         TeamMemberListFragment.ListFragmentListener, TeamMemberDetailFragment.DetailFragmentListener {
 
@@ -233,6 +238,7 @@ public class MainActivity extends ActionBarActivity implements
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction =  fm.beginTransaction();
         transaction.replace(containerId, fragment, tag);
+        transaction.addToBackStack(tag);
         transaction.commit();
         fm.executePendingTransactions();
     }
@@ -246,6 +252,16 @@ public class MainActivity extends ActionBarActivity implements
         }
         else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        FragmentManager fm = getFragmentManager();
+
+        while (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
         }
     }
 
