@@ -137,7 +137,7 @@ public class TeamMemberListFragment extends Fragment {
 
         @Override
         public long getChildId(int groupPosition, int childPosition) {
-            return childPosition; // FIXME not unique
+            return childPosition; // TODO not unique
         }
 
         @Override

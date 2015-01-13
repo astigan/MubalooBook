@@ -8,13 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.mubaloobook.db.DbHelper;
-import com.example.mubaloobook.log.Logger;
 import com.example.mubaloobook.models.MubalooTeam;
 import com.example.mubaloobook.models.MubalooTeamMember;
 import com.example.mubaloobook.network.RestClient;
@@ -48,16 +46,7 @@ public class MainActivity extends ActionBarActivity implements
         setContentView(R.layout.activity_main);
         this.context = this;
 
-        if (isTablet()) {
-            teamMemberListFragment = TeamMemberListFragment.newInstance();
-            teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
-            addFragmentToContainer(R.id.list_fragment_container, teamMemberListFragment, TeamMemberListFragment.TAG);
-            addFragmentToContainer(R.id.detail_fragment_container, teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
-        }
-        else {
-            teamMemberListFragment = TeamMemberListFragment.newInstance();
-            addFragmentToContainer(R.id.fragment_container, teamMemberListFragment, TeamMemberListFragment.TAG);
-        }
+        restoreOrCreateFragments(savedInstanceState);
 
         if (!isNetworkAvailable()) {
             Toast.makeText(this, getString(R.string.no_connection_message), Toast.LENGTH_LONG).show();
@@ -100,6 +89,42 @@ public class MainActivity extends ActionBarActivity implements
         return (network != null && network.isConnectedOrConnecting());
     }
 
+
+    private void restoreOrCreateFragments(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            teamMemberListFragment = (TeamMemberListFragment)
+                    getFragmentManager().findFragmentByTag(TeamMemberListFragment.TAG);
+
+            teamMemberDetailFragment = (TeamMemberDetailFragment)
+                    getFragmentManager().findFragmentByTag(TeamMemberDetailFragment.TAG);
+        }
+        else {
+            teamMemberListFragment = TeamMemberListFragment.newInstance();
+
+            if (isTablet()) {
+                teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
+            }
+        }
+
+        if (isTablet()) {
+            addFragmentToContainer(R.id.list_fragment_container,
+                    teamMemberListFragment, TeamMemberListFragment.TAG);
+
+            addFragmentToContainer(R.id.detail_fragment_container,
+                    teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+        }
+        else { // if phone
+            if (teamMemberDetailFragment != null) {
+                addFragmentToContainer(R.id.fragment_container,
+                        teamMemberDetailFragment, TeamMemberDetailFragment.TAG);
+            }
+            else {
+                addFragmentToContainer(R.id.fragment_container,
+                        teamMemberListFragment, TeamMemberListFragment.TAG);
+            }
+        }
+    }
+
     private void requestTeamInfo() {
 
         RestClient.get().getMubalooTeam(new Callback<List<JsonElement>>() {
@@ -132,8 +157,7 @@ public class MainActivity extends ActionBarActivity implements
                     }
                 }
                 updateDatabaseRecords(teamList);
-                teamMemberListFragment.setDisplayedTeams(teamList);
-//                updateUiOnDataChange();
+                updateUiOnDataChange();
             }
 
             @Override
@@ -144,13 +168,20 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateDatabaseRecords(List<MubalooTeam> teamList) {
-        DbHelper dbHelper = new DbHelper(this);
+        final DbHelper dbHelper = new DbHelper(this);
 
         try {
-            Dao<MubalooTeam, Integer> dao = dbHelper.getMubalooTeamDao();
+            final Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
+            final Dao<MubalooTeamMember, Integer> daoMember = dbHelper.getMubalooTeamMemberDao();
 
             for (MubalooTeam team : teamList) {
-                dao.createOrUpdate(team);
+                team.setMembers(team.getMembers());
+                daoTeam.createOrUpdate(team);
+
+                for (MubalooTeamMember member : team.getMembers()) {
+                    member.setMubalooTeam(team);
+                    daoMember.createOrUpdate(member);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Caught SQL exception updating team members");
@@ -158,11 +189,11 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private List<MubalooTeam> getTeamListFromDb() {
-        DbHelper dbHelper = new DbHelper(this);
-        List<MubalooTeam> teamList;
+        final DbHelper dbHelper = new DbHelper(this);
+        final List<MubalooTeam> teamList;
 
         try {
-            Dao<MubalooTeam, Integer> dao = dbHelper.getMubalooTeamDao();
+            final Dao<MubalooTeam, Integer> dao = dbHelper.getMubalooTeamDao();
             teamList = dao.queryForAll();
 
             for (MubalooTeam team : teamList) {
@@ -171,22 +202,38 @@ public class MainActivity extends ActionBarActivity implements
         } catch (SQLException e) {
             throw new RuntimeException("Caught SQL exception loading team members from DB");
         }
+        setDefaultCurrentMemberIfNeeded(teamList);
+
         return teamList;
     }
 
+    /**
+     * If no member is currently selected, choose one so that the detail fragment isn't blank
+     * @param teamList the available teams
+     */
+    private void setDefaultCurrentMemberIfNeeded(List<MubalooTeam> teamList) {
+
+        // set default
+        if (currentTeamMember == null && !teamList.isEmpty()) {
+            MubalooTeam team = teamList.get(0);
+            List<MubalooTeamMember> memberList = team.getMembers();
+
+            if (memberList != null && !memberList.isEmpty()) {
+                currentTeamMember = memberList.get(0);
+            }
+        }
+    }
+
     private void updateUiOnDataChange() {
-        teamList = getTeamListFromDb();
-        teamMemberListFragment.setDisplayedTeams(teamList);
+        this.teamList = getTeamListFromDb();
+        updateListFragment(this.teamList);
     }
 
     private void addFragmentToContainer(int containerId, Fragment fragment, String tag) {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction =  fm.beginTransaction();
-
         transaction.replace(containerId, fragment, tag);
-        transaction.addToBackStack(tag);
         transaction.commit();
-
         fm.executePendingTransactions();
     }
 
@@ -195,37 +242,18 @@ public class MainActivity extends ActionBarActivity implements
         FragmentManager fm = getFragmentManager();
 
         if (!isTablet() && fm.getBackStackEntryCount() > 1) {
-            fm.popBackStack();
+            fm.popBackStack(); // if phone, pop previous fragment before finishing activity
         }
         else {
             super.onBackPressed();
         }
     }
 
-    // *** Fragment callbacks ***
+    // *** Fragment callbacks (Controller-View logic that sets displayed data) ***
 
     @Override
     public void onTeamMemberSelected(MubalooTeamMember teamMember) {
-
         currentTeamMember = teamMember;
-
-        DbHelper dbHelper = new DbHelper(this);
-        try {
-            Dao<MubalooTeam, Integer> daoTeam = dbHelper.getMubalooTeamDao();
-            MubalooTeam team = teamList.get(1);
-            team.setMembers(team.getMembers());
-            daoTeam.createOrUpdate(team);
-
-            Dao<MubalooTeamMember, Integer> daoMember = dbHelper.getMubalooTeamMemberDao();
-
-            for (MubalooTeamMember member : team.getMembers()) {
-                member.setMubalooTeam(team);
-                daoMember.createOrUpdate(member);
-            }
-
-        } catch (SQLException e) {
-            Log.e(Logger.TAG, "DAO exception", e);
-        }
 
         if (!isTablet()) {
             teamMemberDetailFragment = TeamMemberDetailFragment.newInstance();
@@ -234,20 +262,31 @@ public class MainActivity extends ActionBarActivity implements
         else {
             teamMemberDetailFragment.setDisplayedTeamMember(teamMember);
         }
-        // TODO set selected team member when attached
     }
 
     @Override
     public void onDetailFragmentLoaded() {
-        if (!isTablet()) {
-            teamMemberDetailFragment.setDisplayedTeamMember(currentTeamMember);
-        }
+        updateDetailFragment(this.currentTeamMember);
     }
 
     @Override
     public void onListFragmentLoaded() {
         updateUiOnDataChange();
-        teamMemberListFragment.setDisplayedTeams(teamList);
+        updateListFragment(this.teamList);
+    }
+
+    private void updateListFragment(List<MubalooTeam> teamList) {
+        if (teamMemberListFragment != null && teamMemberListFragment.isAdded()) {
+            teamMemberListFragment.setDisplayedTeams(teamList);
+        }
+    }
+
+    private void updateDetailFragment(MubalooTeamMember currentTeamMember) {
+        this.currentTeamMember = currentTeamMember;
+
+        if (teamMemberDetailFragment != null && teamMemberDetailFragment.isAdded()) {
+            teamMemberDetailFragment.setDisplayedTeamMember(this.currentTeamMember);
+        }
     }
 
 }

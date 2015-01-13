@@ -19,6 +19,7 @@ public class MubalooTeam {
     @DatabaseField(id = true)
     private String teamName;
 
+    // Collections of objects must be stored as ForeignCollections in ORMLite (see custom get/set)
     private List<MubalooTeamMember> members;
 
     @ForeignCollectionField(eager = true)
