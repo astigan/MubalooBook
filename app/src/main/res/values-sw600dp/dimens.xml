@@ -1,0 +1,19 @@
+<resources>
+    <!-- Padding -->
+    <dimen name="min_view_padding">16dp</dimen>
+    <dimen name="default_view_padding">24dp</dimen>
+    <dimen name="activity_horizontal_margin">32dp</dimen>
+    <dimen name="activity_vertical_margin">32dp</dimen>
+
+    <!-- Text sizes -->
+    <dimen name="primary_text_size">28sp</dimen>
+    <dimen name="secondary_text_size">24sp</dimen>
+
+    <!-- View specific -->
+    <dimen name="detail_profile_pic_size">72dp</dimen>
+    <dimen name="list_profile_pic_size">48dp</dimen>
+    <dimen name="team_lead_icon_size">32sp</dimen>
+
+    <dimen name="role_desc_left_margin">8dp</dimen>
+
+</resources>

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/root_view_padding"
-    android:background="@color/primary_light">
+    android:background="@drawable/team_item_bg">
 
     <TextView
         android:id="@+id/team_name"

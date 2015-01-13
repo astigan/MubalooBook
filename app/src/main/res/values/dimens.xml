@@ -14,4 +14,6 @@
     <dimen name="list_profile_pic_size">32dp</dimen>
     <dimen name="team_lead_icon_size">28sp</dimen>
 
+    <dimen name="role_desc_left_margin">@dimen/default_view_padding</dimen>
+
 </resources>
